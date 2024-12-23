@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة القائد الحربي وموسوعة الحضارة المصرية</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="script.js" defer></script>
+    <style>
+        /* General styles */
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            direction: rtl;
+            background-color: #f4f4f4;
+        }
+
+        /* Top Bar Styling */
+        .top-bar {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            background-color: #2c3e50;
+            color: white;
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            font-size: 18px;
+        }
+
+        .top-bar .section-button {
+            background-color: #34495e;
+            border: none;
+            padding: 12px 20px;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .top-bar .section-button:hover {
+            background-color: #1abc9c;
+        }
+
+        .top-bar .section-button:active {
+            background-color: #16a085;
+        }
+
+        /* Section Layout */
+        .section {
+            display: none;
+            padding: 20px;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        /* Game Styles */
+        .game-container {
+            text-align: center;
+        }
+
+        canvas {
+            display: block;
+            margin: 0 auto;
+            background-color: #ccc;
+            border: 1px solid #333;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin-top: 10px;
+        }
+
+        .controls button {
+            padding: 10px;
+            font-size: 18px;
+        }
+
+        .info {
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .life-bar-container {
+            margin-bottom: 10px;
+        }
+
+        .life-bar-container #lifeBar {
+            height: 10px;
+            background-color: green;
+            width: 100%;
+        }
+
+        /* App Section Styles */
+        header {
+            text-align: center;
+            background-color: #eee;
+            padding: 20px;
+        }
+
+        .language-selector {
+            margin-top: 10px;
+        }
+
+        .search-container {
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .pagination {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        footer {
+            text-align: center;
+            background-color: #222;
+            color: white;
+            padding: 10px;
+        }
+
+        /* Signup and Login Styles */
+        .auth-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+
+        .auth-box {
+            width: 300px;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        .auth-box h2 {
+            text-align: center;
+        }
+
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        .auth-form input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .auth-form button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .auth-form button:hover {
+            background-color: #45a049;
+        }
+
+        .toggle-text {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .toggle-link {
+            color: #4CAF50;
+            cursor: pointer;
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Top navigation bar -->
+    <div class="top-bar">
+        <button class="section-button" onclick="showSection('game')">اللعبة</button>
+        <button class="section-button" onclick="showSection('app')">التطبيق</button>
+        <button class="section-button" onclick="showSection('auth')">تسجيل الدخول / التسجيل</button>
+    </div>
+
+    <!-- Login & Signup Section -->
+    <div id="auth" class="section">
+        <div class="auth-container">
+            <div class="auth-box">
+                <h2 id="authTitle">تسجيل الدخول</h2>
+                <form id="loginForm" class="auth-form active">
+                    <input type="text" id="loginUsername" placeholder="اسم المستخدم" required>
+                    <input type="password" id="loginPassword" placeholder="كلمة المرور" required>
+                    <button type="button" onclick="login()">دخول</button>
+                    <p id="loginError" class="error-message"></p>
+                    <p class="toggle-text">
+                        ليس لديك حساب؟ <span class="toggle-link" onclick="toggleAuth('signup')">سجل الآن</span>
+                    </p>
+                </form>
+                <form id="signUpForm" class="auth-form">
+                    <input type="text" id="signUpUsername" placeholder="اسم المستخدم" required>
+                    <input type="email" id="signUpEmail" placeholder="البريد الإلكتروني" required>
+                    <input type="password" id="signUpPassword" placeholder="كلمة المرور" required>
+                    <button type="button" onclick="signUp()">تسجيل</button>
+                    <p id="signUpSuccess" class="success-message"></p>
+                    <p class="toggle-text">
+                        لديك حساب بالفعل؟ <span class="toggle-link" onclick="toggleAuth('login')">سجل دخول</span>
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Section -->
+    <div id="game" class="section">
+        <div class="game-container">
+            <canvas id="gameCanvas"></canvas>
+            <div class="controls">
+                <button id="upButton">⬆</button>
+                <div>
+                    <button id="leftButton">⬅</button>
+                    <button id="shootButton">🔫</button>
+                    <button id="rightButton">➡</button>
+                </div>
+                <button id="downButton">⬇</button>
+            </div>
+            <div class="info">
+                <div class="life-bar-container">
+                    <span>الشريط الصحي:</span>
+                    <div id="lifeBar"></div>
+                </div>
+                <div class="score-info">
+                    <span id="scoreDisplay">النتيجة: 0</span>
+                    <span id="requiredScore">النتيجة المطلوبة: 5</span>
+                </div>
+            </div>
+            <button id="restartButton" style="display: none;">إعادة تشغيل</button>
+        </div>
+    </div>
+
+    <!-- App Section -->
+    <div id="app" class="section">
+        <header>
+            <div id="top-message">Free Palestine فلسطين في القلب 🇵🇸</div>
+            <h1 id="main-title">موسوعة الحضارة المصرية</h1>
+            <p id="main-subtitle">🇪🇬 مصر - تاريخ، حضارة، وثقافة</p>
+            <div class="language-selector">
+                <label for="language" id="language-label">اختر اللغة:</label>
+                <select id="language" onchange="changeLanguage()">
+                    <option value="ar">العربية</option>
+                    <option value="en">English</option>
+                </select>
+            </div>
+        </header>
+        <main>
+            <section class="introduction">
+                <h2 id="introduction-title">لمحة عن الحضارة المصرية القديمة</h2>
+                <div class="search-container">
+                    <input type="text" id="search-bar" placeholder="ابحث عن التاريخ المصري...">
+                    <button id="search-button" onclick="fetchContent()">ابحث</button>
+                </div>
+            </section>
+            <section id="content-section">
+                <!-- سيتم تحميل المعلومات هنا -->
+            </section>
+            <div class="pagination">
+                <button id="prev-button" onclick="fetchPreviousContent()">المقال السابق</button>
+                <button id="next-button" onclick="fetchNextContent()">المقال التالي</button>
+            </div>
+            <section class="youtube-videos" id="youtube-videos">
+                <!-- سيتم عرض فيديوهات اليوتيوب هنا -->
+            </section>
+        </main>
+        <footer>
+            <p>جميع الحقوق محفوظة &copy; 2024 - موسوعة الحضارة المصرية</p>
+        </footer>
+    </div>
+
+    <script>
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(section => section.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+        }
+
+        function toggleAuth(form) {
+            document.querySelectorAll('.auth-form').forEach(authForm => authForm.classList.remove('active'));
+            document.getElementById(form + 'Form').classList.add('active');
+            document.getElementById('authTitle').innerText = form === 'login' ? 'تسجيل الدخول' : 'تسجيل حساب جديد';
+        }
+
+        function login() {
+            document.getElementById('loginError').innerText = 'تم تسجيل الدخول بنجاح!';
+        }
+
+        function signUp() {
+            document.getElementById('signUpSuccess').innerText = 'تم التسجيل بنجاح!';
+        }
+
+        function changeLanguage() {
+            alert('تم تغيير اللغة!');
+        }
+
+        function fetchContent() {
+            alert('تم البحث عن المحتوى!');
+        }
+
+        function fetchPreviousContent() {
+            alert('تم عرض المقال السابق!');
+        }
+
+        function fetchNextContent() {
+            alert('تم عرض المقال التالي!');
+        }
+    </script>
+</body>
+</html>
